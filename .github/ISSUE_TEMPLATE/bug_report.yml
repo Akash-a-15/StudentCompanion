@@ -1,0 +1,47 @@
+name: Bug report
+description: Report a reproducible problem in StudentCompanion.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve StudentCompanion. Use fictional data and remove passwords, tokens, student records, and private filenames from logs or screenshots.
+
+        Known limitation: HTML templates and static assets are not currently committed, so browser pages fail to render. Please mention the specific route if your report concerns this issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and any relevant error message.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include the route or command and the account role involved. Use sample data only.
+      placeholder: |
+        1. Start the application with...
+        2. Sign in as a student / teacher / admin...
+        3. Open...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include your operating system, Python version, startup command, and browser if relevant. Do not paste environment variable values.
+      placeholder: |
+        OS:
+        Python version:
+        Startup command:
+        Browser (if relevant):
+    validations:
+      required: true

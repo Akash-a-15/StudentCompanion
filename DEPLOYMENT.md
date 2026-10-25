@@ -1,78 +1,73 @@
-# EduCompanion - Free Internet Deployment Guide
+# Deploy EduCompanion
 
-This guide explains how to make your **EduCompanion** app accessible over the internet from anywhere, 100% for free.
+EduCompanion runs as a Flask application behind Gunicorn, with SQLite and uploaded notes stored on disk.
 
----
+> **Current blocker:** this checkout does not include the HTML templates or static assets referenced by the application. The health API can run, but login, dashboard, and other browser pages fail with `TemplateNotFound`. Restore those assets before offering the browser app to users.
 
-## Option 1: 24/7 Cloud Hosting on Render (Recommended)
+## Configuration
 
-[Render](https://render.com) offers a free Web Service tier that includes automatic HTTPS, a public URL (`https://educompanion.onrender.com`), and continuous deployment from GitHub.
+Supply settings through your host's environment or secret manager. Never commit real credentials, local `.env` files, databases, or uploads.
 
-### Steps:
-1. **Push your code to GitHub**:
-   - Create a repository named `studentcompanion` on [GitHub](https://github.com).
-   - Commit and push your project files (`app.py`, `wsgi.py`, `requirements.txt`, `templates/`, `static/`).
-2. **Sign up on Render**:
-   - Go to [render.com](https://render.com) and create a free account (sign in with GitHub).
-3. **Create a New Web Service**:
-   - Click **New +** -> **Web Service**.
-   - Select your `studentcompanion` repository.
-4. **Configure Settings**:
-   - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn wsgi:app`
-   - **Instance Type**: `Free`
-5. **Set Environment Variables**:
-   - Click **Environment Variables** -> **Add Environment Variable**:
-     - `FLASK_SECRET_KEY`: Enter a 32+ character random string.
-     - `PYTHON_VERSION`: `3.11.0`
-6. **Deploy**:
-   - Click **Create Web Service**. Within 2 minutes, your app will be live on the internet!
+| Variable | Deployment requirement |
+| --- | --- |
+| `FLASK_SECRET_KEY` | A private random value of at least 32 characters, shared by all workers and retained across restarts. Changing it invalidates sessions. |
+| `ADMIN_USERNAME` | An explicit username of at least 3 characters for the initial admin. |
+| `ADMIN_PASSWORD` | A private password of at least 12 characters for the initial admin. Set it before the first startup; do not rely on the code's development fallback. |
+| `DATABASE_PATH` | An absolute path on writable persistent storage, such as `/data/student_companion.db`. |
+| `UPLOAD_DIR` | A writable directory on persistent storage, such as `/data/notes`. |
+| `FLASK_ENV` | Set to `production` behind HTTPS. This enables secure session cookies, so browser sessions require HTTPS. |
 
-*Note on Free Tier*: Free Render instances enter sleep mode after 15 minutes of inactivity; the first visitor after idle will experience a ~30-50 second cold start.
+Admin environment variables are used only when the database has no admin. Setting them does **not** reset an existing admin's credentials. Start with a fresh database path for a new deployment; the committed database contains disposable demo records.
 
----
+Keep runtime storage outside the checkout and back up both SQLite and uploaded files. Create the database's parent directory before startup and give the application process write access. A restart or redeploy must preserve this storage.
 
-## Option 2: Free Hosting on PythonAnywhere (Persistent SQLite)
+`.env.example` lists only some settings; configure the admin and storage variables above as well. If using a local `.env` file, protect it and keep it outside any Docker build context: the current Dockerfile copies the entire context into the image.
 
-[PythonAnywhere](https://www.pythonanywhere.com) is built specifically for Python and allows your SQLite database to remain persistent on disk without any external database service.
+## Run with Gunicorn
 
-### Steps:
-1. Register for a free "Beginner" account at [pythonanywhere.com](https://www.pythonanywhere.com).
-2. Go to the **Web** tab and click **Add a new web app**.
-3. Select **Flask** and **Python 3.10** (or manual configuration).
-4. In the **Files** tab, upload your project files or clone your GitHub repository into your home directory (`/home/yourusername/studentcompanion`).
-5. Open the **WSGI configuration file** (linked under the Web tab) and point it to your app:
-   ```python
-   import sys
-   import os
+From the repository root, after creating a virtual environment, installing `requirements.txt`, and supplying the variables above:
 
-   project_home = '/home/yourusername/studentcompanion'
-   if project_home not in sys.path:
-       sys.path.insert(0, project_home)
+```bash
+python -m pip install -r requirements.txt
+mkdir -p "$(dirname "$DATABASE_PATH")" "$UPLOAD_DIR"
+gunicorn --bind "0.0.0.0:${PORT:-8000}" \
+  --workers 2 --timeout 120 --preload wsgi:app
+```
 
-   os.environ['FLASK_SECRET_KEY'] = 'your-secret-key-at-least-32-chars-long'
-   from app import app as application
-   ```
-6. Click **Reload yourusername.pythonanywhere.com**. Your app is live at `https://yourusername.pythonanywhere.com`!
+`--preload` imports the application and initializes SQLite in the master process before forking workers, avoiding concurrent first-start initialization. Put an HTTPS reverse proxy or managed HTTPS ingress in front of Gunicorn. Use one application instance with its local persistent SQLite storage; this guide does not establish multi-host database support.
 
----
+## Run with Docker
 
-## Option 3: Instant Public Access via Cloudflare Tunnel (Zero Cloud Setup)
+Build from a clean checkout containing no local secrets or personal data. Inject secrets at runtime through the exported variables `FLASK_SECRET_KEY`, `ADMIN_USERNAME`, and `ADMIN_PASSWORD`; the following example does not put their values in the command or image:
 
-If you have the app running on your computer and want to instantly share a public HTTPS link with friends, teachers, or test devices anywhere in the world:
+```bash
+docker build -t educompanion .
+docker volume create educompanion-data
+docker run --name educompanion \
+  --publish 127.0.0.1:8000:8000 \
+  --mount type=volume,source=educompanion-data,target=/data \
+  --env FLASK_SECRET_KEY \
+  --env ADMIN_USERNAME \
+  --env ADMIN_PASSWORD \
+  --env FLASK_ENV=production \
+  --env DATABASE_PATH=/data/student_companion.db \
+  --env UPLOAD_DIR=/data/notes \
+  educompanion \
+  gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 120 --preload wsgi:app
+```
 
-1. Download the free [Cloudflare Tunnel utility (cloudflared)](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
-2. Run your Flask app locally:
-   ```bash
-   python app.py
-   ```
-3. Open a second terminal window and run:
-   ```bash
-   cloudflared tunnel --url http://127.0.0.1:5000
-   ```
-4. Cloudflare outputs a free secure link:
-   ```
-   https://random-words-1234.trycloudflare.com
-   ```
-Anyone anywhere in the world can open that URL on their mobile phone or laptop and use your app directly.
+The named volume retains the database and uploads across container replacements. Keep it when removing the container. Connect the loopback-bound port to an HTTPS reverse proxy before testing browser sessions.
+
+## Hosting and verification
+
+The repository includes `render.yaml`, `Dockerfile`, and `Procfile` as starting points. Configure persistent storage, private secrets, HTTPS, and the startup command above for your chosen provider. The existing launch definitions do not include `--preload`, and the Render definition does not configure a persistent disk or initial admin credentials.
+
+Provider plans, storage costs, availability, and idle-sleep behavior depend on current terms. Check those terms before choosing a host; these files do not guarantee free hosting or continuous availability.
+
+After startup, check the internal health endpoint:
+
+```bash
+curl --fail http://127.0.0.1:8000/api/health
+```
+
+Expected JSON: `{"app":"EduCompanion","status":"ok"}`. Then verify registration, login, authenticated `/api/summary`, and logout through HTTPS. Once the missing templates are restored, verify the browser pages and note upload/download as well. Health success alone does not establish that the full application works.

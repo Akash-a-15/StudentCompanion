@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title description">
+  <title id="title">StudentCompanion</title>
+  <desc id="description">Classes, attendance, and study notes in one place. A Flask and SQLite project for students and teachers.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101b36"/>
+      <stop offset="1" stop-color="#202b56"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#67e8c0"/>
+      <stop offset="1" stop-color="#75baff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="360" rx="24" fill="url(#background)"/>
+  <circle cx="1235" cy="0" r="265" fill="#818cf8" opacity=".07"/>
+  <circle cx="1175" cy="350" r="170" fill="#67e8c0" opacity=".04"/>
+  <path d="M760 0v360M0 304h1280" stroke="#c7d2fe" stroke-opacity=".08"/>
+  <rect x="56" y="46" width="232" height="30" rx="15" fill="#67e8c0" fill-opacity=".1" stroke="#67e8c0" stroke-opacity=".2"/>
+  <circle cx="74" cy="61" r="4" fill="#67e8c0"/>
+  <text x="88" y="66" fill="#9af4d7" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="12" font-weight="600" letter-spacing="1.4">BUILT FOR CAMPUS LIFE</text>
+  <g font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+    <text x="56" y="148" fill="#f7f9ff" font-size="55" font-weight="750" letter-spacing="-2">StudentCompanion</text>
+    <text x="58" y="197" fill="#c4cde8" font-size="23">Your classes. Your progress. Your notes.</text>
+    <text x="58" y="256" fill="#8fa4d3" font-size="15">Python + Flask + SQLite</text>
+    <text x="58" y="334" fill="#a5b5dc" font-size="13" letter-spacing="1">LEARN TOGETHER. BUILD TOGETHER.</text>
+  </g>
+  <g transform="translate(814 58)">
+    <rect width="390" height="238" rx="18" fill="#14203e" stroke="#526695" stroke-opacity=".55"/>
+    <rect x="22" y="24" width="40" height="40" rx="10" fill="url(#accent)"/>
+    <path d="m32 40 10-5 10 5-10 5-10-5zm4 4v7c4 3 8 3 12 0v-7" fill="none" stroke="#152644" stroke-width="2" stroke-linejoin="round"/>
+    <text x="76" y="43" fill="#eef4ff" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="17" font-weight="650">A shared space to learn</text>
+    <text x="76" y="62" fill="#97abd2" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="12">For students, teachers, and admins</text>
+    <path d="M22 83h346" stroke="#33456e"/>
+    <g font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="16" fill="#d8e5ff">
+      <circle cx="34" cy="114" r="4" fill="#67e8c0"/>
+      <text x="52" y="120">Organize subjects</text>
+      <circle cx="34" cy="157" r="4" fill="#91bfff"/>
+      <text x="52" y="163">Track attendance</text>
+      <circle cx="34" cy="200" r="4" fill="#b8a6ff"/>
+      <text x="52" y="206">Share study notes</text>
+    </g>
+  </g>
+</svg>

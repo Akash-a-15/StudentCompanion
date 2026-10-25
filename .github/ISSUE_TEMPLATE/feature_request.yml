@@ -1,0 +1,21 @@
+name: Feature idea
+description: Suggest an improvement for students, teachers, or admins.
+title: "[Idea]: "
+body:
+  - type: markdown
+    attributes:
+      value: Share the task you want to make easier. Use fictional examples and leave out private student data.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Who needs this, and what is difficult in the current workflow?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: Describe the behavior you would like and how it helps. Mockups or alternatives are welcome.
+    validations:
+      required: true
